@@ -41,24 +41,30 @@ class SNCreator(object):
     def makeEmptyActActMatrix(self):
         ActActMatrix = np.zeros([len(self.activityList), len(self.activityList)])  # +1 is just for considering <None>
         return ActActMatrix;
-    
+
     def makeEmptyRscActMatrix(self):
         RscActMatrix = np.zeros([len(self.resourceList), len(self.activityList)])  # +1 is just for considering <None>
         return RscActMatrix;
     
-    def makeHandoverMatrix(self):   
-        RscRscMatrix = SNCreator.makeEmptyRscRscMatrix(self)
-        
-        for resource, next_resource in zip(self.snDataFrame['resource'], self.snDataFrame['next_resource']):
-            try:
-                RscRscMatrix[self.resourceList.index(resource)][self.resourceList.index(next_resource)] += 1
-            except Exception as e:
-                print(e)
+    def makeHandoverMatrix(self, attribute='resource'):
+        if attribute == 'resource':
+            RscRscMatrix = SNCreator.makeEmptyRscRscMatrix(self)
+            for resource, next_resource in zip(self.snDataFrame['resource'], self.snDataFrame['next_resource']):
+                try:
+                    RscRscMatrix[self.resourceList.index(resource)][self.resourceList.index(next_resource)] += 1
+                except Exception as e:
+                    print(e)
+            return RscRscMatrix
+        elif attribute == 'activity':
+            ActActMatrix = SNCreator.makeEmptyActActMatrix(self)
+            for activity, next_activity in zip(self.snDataFrame['activity'], self.snDataFrame['next_activity']):
+                try:
+                    ActActMatrix[self.activityList.index(activity)][self.activityList.index(next_activity)] += 1
+                except Exception as e:
+                    print(e)
+            return ActActMatrix
 
-            
-        return RscRscMatrix 
-    
-    def makeHandoverMatrix_connector(self):   
+    def makeHandoverMatrix_connector(self):
         RscRscMatrix = SNCreator.makeEmptyRscRscMatrix(self)
         
         for prev_resource, resource in zip(self.snDataFrame['prev_resource'], self.snDataFrame['resource']):
@@ -610,13 +616,13 @@ class SNCreator(object):
         nx.draw(G, with_labels=True, node_color=['0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0'], labels=labels, node_size=500, pos=nx.circular_layout(G))
         plt.show()
             
-    def drawRscRscGraph_advanced(self, RscRscMatrix, weight_threshold, directed, encryption):
+    def drawRscRscGraph_advanced(self, Matrix, weight_threshold, directed, encryption, labels='resource'):
         
-        rows, cols = np.where(RscRscMatrix > weight_threshold)
+        rows, cols = np.where(Matrix > weight_threshold)
         weights = list();
         
         for x in range(len(rows)):
-            weights.append(RscRscMatrix[rows[x]][cols[x]])
+            weights.append(Matrix[rows[x]][cols[x]])
         
         #got_net = Network(height="750px", width="100%", bgcolor="white", font_color="#3de975", directed=directed)
         got_net = Network(height="750px", width="100%", bgcolor="white", font_color="black", directed=directed)
@@ -627,10 +633,14 @@ class SNCreator(object):
         edge_data = zip(rows, cols, weights)
         
         for e in edge_data:
-            
-            src = self.resourceList[e[0]]  # convert ids to labels
-            dst = self.resourceList[e[1]]
-            w = e[2] 
+            if labels == 'resource':
+                src = self.resourceList[e[1]]  # convert ids to labels
+                dst = self.resourceList[e[0]]
+            elif labels == 'activity':
+                src = self.activityList[e[1]]  # convert ids to labels
+                dst = self.activityList[e[0]]
+
+            w = e[2]
             
             if(encryption):
                 src = Utilities.AES_ECB_Encrypt(self,src.encode('utf-8'))
@@ -653,7 +663,7 @@ class SNCreator(object):
         for node in got_net.nodes:
             counter = 0
             if(directed):
-                node["title"] = "<h3>" + node["title"] + " Output Links: </h3>"
+                node["title"] = "<h3>" + node["title"] + " Links: </h3>"
             else:
                 node["title"] = "<h3>" + node["title"] + " Links: </h3>"
             for neighbor in neighbor_map[node["id"]]:

@@ -13,7 +13,7 @@ import pandas as pd
 import os
 from pm4py.objects.log.importer.xes import factory as xes_importer_factory
 
-log = xes_importer_factory.apply("Sn_Artificial_Paper.xes")
+log = xes_importer_factory.apply("event_logs/Sn_Artificial_Paper.xes")
 
 utils = Utilities(log)
 

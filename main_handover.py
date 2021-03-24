@@ -10,7 +10,8 @@ from SNCreator import SNCreator
 import pandas as pd
 import os
 
-log_name = "Sn_Artificial_Paper.xes"
+log_name = "./event_logs/BPI Challenge 2017_App_minutes_5_60_0.2_relative.xes"
+# log_name = "Sn_Artificial_Paper.xes"
 log = xes_importer_factory.apply(log_name)
 
 if not os.path.exists("./intermediate_dataframe"):
@@ -33,7 +34,7 @@ snCrtBasic = SNCreator(resourceList, [] , snBasic_DF)
 RscRscMatrix_handover = snCrtBasic.makeHandoverMatrix()
 
 RscRscMatrix_handover_org = pd.DataFrame(RscRscMatrix_handover, index=resourceList, columns=resourceList)
-RscRscMatrix_handover_org.to_csv("./intermediate_matrices/RscRscMatrix_handover.csv", sep=',', encoding='utf-8')
+RscRscMatrix_handover_org.to_csv("./intermediate_matrices/RscRscMatrix_2017_handover_strong_rel.csv", sep=',', encoding='utf-8')
 
 
 # resourceList_Dec = utils.resourceDecryption(resourceList_Enc)

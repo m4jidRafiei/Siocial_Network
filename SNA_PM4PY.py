@@ -9,7 +9,7 @@ from pm4py.objects.log.importer.xes import factory as xes_importer_factory
 from pm4py.visualization.sna import factory as sna_vis_factory
 
 
-log = xes_importer_factory.apply("Sn_Artificial.xes")
+log = xes_importer_factory.apply("event_logs/Sn_Artificial.xes")
 
 
 ja_values = sna_factory.apply(log, variant="jointactivities")
